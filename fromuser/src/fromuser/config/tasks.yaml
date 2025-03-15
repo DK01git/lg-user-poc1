@@ -1,17 +1,149 @@
-research_task:
+initial_data_collection_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Collect fundamental user information through a web form interface. Present a clean, user-friendly form 
+    requesting the user's full name, email address, educational background summary, professional background 
+    summary, and key skills. Ensure all fields are properly validated and formatted for downstream processing. 
+    Explain clearly how this information will be used to build a comprehensive professional profile.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A structured dictionary containing the user's validated input information with the following fields:
+    1. Full name (first and last name as separate fields)
+    2. Email address (validated format)
+    3. Educational background summary (text format)
+    4. Professional background summary (text format)
+    5. Self-reported skills list (array format)
+    All fields should be properly sanitized and formatted consistently.
+  agent: data_collector
 
-reporting_task:
+general_web_search_task:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Conduct comprehensive web searches to discover publicly available information about the user. 
+    Using the SERPER API, perform multiple searches combining the user's name with various professional 
+    and educational keywords. Look for professional profiles, academic publications, conference 
+    appearances, company mentions, news articles, and other relevant information. Focus on finding 
+    information that supplements and validates the user-provided details.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A detailed report containing:
+    1. All discovered web mentions of the user categorized by source type (news, academic, professional, etc.)
+    2. Links to relevant webpages where the user is mentioned
+    3. Summary of key information discovered about education, professional history, and skills
+    4. Confidence score for each piece of discovered information
+    5. Any discrepancies identified between user-provided information and web discoveries
+    6. List of potential additional information sources for further investigation
+  agent: web_researcher
+  dependencies: [initial_data_collection_task]
+
+linkedin_analysis_task:
+  description: >
+    Access and analyze the user's LinkedIn profile to extract comprehensive professional information. 
+    Using appropriate LinkedIn scraping tools or APIs, collect the complete work history, educational 
+    background, certifications, skills, endorsements, recommendations, projects, publications, awards, 
+    and authored content. Analyze connection patterns to identify industry focus areas and professional 
+    networks. Extract engagement patterns from posts and activities to determine professional interests.
+  expected_output: >
+    A comprehensive LinkedIn profile analysis containing:
+    1. Complete chronological work history with company names, positions, durations, and descriptions
+    2. Educational credentials including institutions, degrees, fields of study, and graduation dates
+    3. List of certifications with issuing organizations and dates
+    4. Projects, publications, patents, and other professional work products
+    5. Skills and endorsements with quantitative measurements (number of endorsements)
+    6. Recommendations received and their contents
+    7. Articles, posts, and comments authored on LinkedIn
+    8. Connection analysis showing industry distribution and key professional networks
+    9. Awards, honors, and recognitions
+    All information should be structured hierarchically with timestamps where applicable.
+  agent: linkedin_specialist
+  dependencies: [initial_data_collection_task]
+
+github_analysis_task:
+  description: >
+    Analyze the user's GitHub profile to determine technical capabilities, project history, and coding 
+    patterns. Access all public repositories and examine code contributions, technologies used, project 
+    types, documentation practices, and collaboration patterns. Evaluate adherence to coding best practices, 
+    project organization, and technical sophistication. Identify primary technology stacks, programming 
+    languages, and areas of technical focus. Assess contribution frequency and project maintenance patterns.
+  expected_output: >
+    A detailed GitHub profile analysis containing:
+    1. List of repositories with metadata (stars, forks, watchers, contributors)
+    2. Primary programming languages and technology stacks with usage percentages
+    3. Code quality assessment based on organization, documentation, and best practices
+    4. Contribution patterns including frequency, consistency, and time distribution
+    5. Collaboration patterns from issues, pull requests, and code reviews
+    6. Project types and domains of focus
+    7. Notable technical achievements or innovative solutions
+    8. Overall assessment of technical proficiency in each identified technology
+    9. Evolution of technical skills based on repository timeline
+    Include specific code examples that demonstrate expertise or unique approaches.
+  agent: github_analyst
+  dependencies: [initial_data_collection_task]
+
+medium_content_analysis_task:
+  description: >
+    Discover and analyze all content published by the user on Medium and other blogging platforms. 
+    Identify articles authored by the user and analyze topics, technical depth, writing style, audience 
+    engagement, and demonstrated expertise. Look for recurring themes, technical focus areas, and 
+    thought leadership indicators. Assess how the user's written content aligns with and expands upon 
+    their stated skills and professional background. Track the evolution of expertise areas over time.
+  expected_output: >
+    A comprehensive content analysis report containing:
+    1. Complete list of discovered articles with publication dates, titles, and links
+    2. Topic categorization and tag analysis across all content
+    3. Primary and secondary expertise domains demonstrated in written work
+    4. Technical depth assessment for each identified knowledge domain
+    5. Writing style analysis (technical, educational, opinion-based, etc.)
+    6. Audience engagement metrics (views, claps, comments) where available
+    7. Evolution of focus areas and expertise over time
+    8. Key technologies, methodologies, or frameworks frequently discussed
+    9. Notable quotes or insights that demonstrate thought leadership
+    10. Comparison between content focus and stated professional background
+  agent: content_analyst
+  dependencies: [initial_data_collection_task]
+
+data_synthesis_task:
+  description: >
+    Integrate and analyze all information collected from the initial form, general web searches, 
+    LinkedIn profile, GitHub repositories, and Medium articles. Cross-reference data points across 
+    sources to validate accuracy and resolve any contradictions or inconsistencies. Create a unified 
+    view of the user's professional identity, technical capabilities, expertise areas, and career 
+    trajectory. Identify patterns, connections, and insights that emerge from the combined data.
+  expected_output: >
+    A unified user profile containing:
+    1. Validated personal and contact information
+    2. Comprehensive educational history with verified institutions and credentials
+    3. Complete professional timeline with verified employers and positions
+    4. Skills inventory categorized by domain and proficiency level
+    5. Technical capabilities assessment with specific technologies and proficiency ratings
+    6. Project portfolio highlighting significant professional accomplishments
+    7. Content creation and thought leadership summary
+    8. Areas of expertise ranked by evidence strength across multiple sources
+    9. Career trajectory analysis and expertise evolution
+    10. Identified inconsistencies or gaps requiring further clarification
+    11. Confidence scores for each data point based on cross-source validation
+    All information should include source attribution and validation status.
+  agent: data_synthesizer
+  dependencies: [general_web_search_task, linkedin_analysis_task, github_analysis_task, medium_content_analysis_task]
+
+persona_generation_task:
+  description: >
+    Create a comprehensive, structured JSON representation of the user's complete professional persona 
+    based on the synthesized data. Format all collected and validated information into a standardized 
+    schema that captures the full spectrum of the user's professional identity, technical capabilities, 
+    career history, and expertise areas. Ensure the JSON structure is logically organized, consistently 
+    formatted, and includes appropriate metadata.
+  expected_output: >
+    A complete JSON document structured according to the following schema:
+    1. personal_info: Basic user information including name, contact details
+    2. education: Array of educational experiences with institutions, degrees, dates
+    3. professional_experience: Array of work experiences with companies, positions, durations, accomplishments
+    4. skills: Categorized skills inventory with proficiency levels
+    5. projects: Significant professional and personal projects with descriptions and technologies
+    6. publications: Articles, papers, and other written works
+    7. certifications: Professional certifications and credentials
+    8. online_presence: Digital footprint including GitHub and Medium profiles
+       - GitHub subsection with repositories, tech stack, and coding patterns
+       - Medium subsection with articles and expertise areas
+    9. expertise_areas: Primary and secondary domains of expertise
+    10. meta: Generation metadata including confidence scores and data sources
+    The JSON should be properly formatted, nested appropriately, and contain comprehensive data in each section.
+  agent: persona_generator
+  dependencies: [data_synthesis_task]
+  output_file: user_persona.json

@@ -18,16 +18,51 @@ class Fromuser():
 	# If you would like to add tools to your agents, you can learn more about it here:
 	# https://docs.crewai.com/concepts/agents#agent-tools
 	@agent
-	def researcher(self) -> Agent:
+	def data_collector(self) -> Agent:
 		return Agent(
-			config=self.agents_config['researcher'],
+			config=self.agents_config['data_collector'],
 			verbose=True
 		)
 
 	@agent
-	def reporting_analyst(self) -> Agent:
+	def web_researcher(self) -> Agent:
 		return Agent(
-			config=self.agents_config['reporting_analyst'],
+			config=self.agents_config['web_researcher'],
+			verbose=True
+		)
+
+	@agent
+	def linkedin_specialist(self) -> Agent:
+		return Agent(
+			config=self.agents_config['linkedin_specialist'],
+			verbose=True
+		)
+
+	@agent
+	def github_analyst(self) -> Agent:
+		return Agent(
+			config=self.agents_config['github_analyst'],
+			verbose=True
+		)
+
+	@agent
+	def content_analyst(self) -> Agent:
+		return Agent(
+			config=self.agents_config['content_analyst'],
+			verbose=True
+		)
+
+	@agent
+	def data_synthesizer(self) -> Agent:
+		return Agent(
+			config=self.agents_config['data_synthesizer'],
+			verbose=True
+		)
+
+	@agent
+	def persona_generator(self) -> Agent:
+		return Agent(
+			config=self.agents_config['persona_generator'],
 			verbose=True
 		)
 
@@ -35,16 +70,53 @@ class Fromuser():
 	# task dependencies, and task callbacks, check out the documentation:
 	# https://docs.crewai.com/concepts/tasks#overview-of-a-task
 	@task
-	def research_task(self) -> Task:
+	def initial_data_collection_task(self) -> Task:
 		return Task(
-			config=self.tasks_config['research_task'],
+			config=self.tasks_config['initial_data_collection_task'],
+			agent=self.data_collector()
 		)
 
 	@task
-	def reporting_task(self) -> Task:
+	def general_web_search_task(self) -> Task:
 		return Task(
-			config=self.tasks_config['reporting_task'],
-			output_file='report.md'
+			config=self.tasks_config['general_web_search_task'],
+			agent=self.web_researcher()
+		)
+
+	@task
+	def linkedin_analysis_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['linkedin_analysis_task'],
+			agent=self.linkedin_specialist()			
+		)
+
+	@task
+	def github_analysis_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['github_analysis_task'],
+			agent=self.github_analyst()
+		)
+
+	@task
+	def medium_content_analysis_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['medium_content_analysis_task'],
+			agent=self.content_analyst()
+		)
+
+	@task
+	def data_synthesis_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['data_synthesis_task'],
+			agent=self.data_synthesizer()
+		)
+
+	@task
+	def persona_generation_task(self) -> Task:
+		return Task(
+			config=self.tasks_config['persona_generation_task'],
+			agent=self.persona_generator(),
+			output_file='output/user_persona.json'
 		)
 
 	@crew
